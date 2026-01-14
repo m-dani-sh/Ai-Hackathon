@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Checker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Air Quality Checker</h1>
+        <div class="search-container">
+            <input type="text" id="city" placeholder="Enter city name or use current location">
+            <button id="search-btn">Search</button>
+            <button id="location-btn">Current Location</button>
+        </div>
+        <div id="result-container" class="hidden">
+            <div id="loader" class="hidden"></div>
+            <div id="weather-info"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
