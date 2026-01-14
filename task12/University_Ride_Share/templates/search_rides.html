@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Rides</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h2>Search Rides</h2>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/post_ride">Post Ride</a>
+        <a href="/ride_history">Ride History</a>
+    </nav>
+
+    <form method="POST">
+        <input type="text" name="route" placeholder="Enter Route" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if rides %}
+    <ul>
+        {% for ride in rides %}
+        <li>
+            <span><strong>Driver:</strong> {{ ride[1] }}</span>
+            <span><strong>Route:</strong> {{ ride[2] }}</span>
+            <span><strong>Time:</strong> {{ ride[3] }}</span>
+            <span><strong>Seats Available:</strong> {{ ride[4] - ride[5] }}</span>
+            {% if ride[5] < ride[4] %}
+            <a href="/book/{{ ride[0] }}" class="book-btn">Book Seat</a>
+            {% else %}
+            <span class="full">Full</span>
+            {% endif %}
+
+            <!-- Map -->
+            <div id="map-{{ ride[0] }}" class="map"></div>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Initialize all maps in one script -->
+    <script>
+        {% for ride in rides %}
+            var map{{ ride[0] }} = L.map('map-{{ ride[0] }}').setView([{{ ride[6] }}, {{ ride[7] }}], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map{{ ride[0] }});
+            L.marker([{{ ride[6] }}, {{ ride[7] }}]).addTo(map{{ ride[0] }}).bindPopup("Start");
+            L.marker([{{ ride[8] }}, {{ ride[9] }}]).addTo(map{{ ride[0] }}).bindPopup("End");
+            L.polyline([[{{ ride[6] }}, {{ ride[7] }}], [{{ ride[8] }}, {{ ride[9] }}]], {color:'blue'}).addTo(map{{ ride[0] }});
+        {% endfor %}
+    </script>
+
+    {% else %}
+        {% if request.method=='POST' %}
+        <p style="text-align:center; color:#ff5252; margin-top:20px; font-weight:bold;">
+            No rides available for this route.
+        </p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
