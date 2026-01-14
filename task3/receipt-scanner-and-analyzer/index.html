@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Scanner and Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Financial Insights Dashboard</h1>
+        </header>
+        <main class="dashboard-grid">
+            <div class="column-left">
+                <section class="card" id="upload-section">
+                    <h2>Upload a New Receipt</h2>
+                    <input type="file" id="receipt-upload" accept="image/*">
+                    <button id="upload-btn">Upload and Process</button>
+                </section>
+                <section class="card" id="alerts-section">
+                    <h2>Alerts</h2>
+                    <div id="alerts-data"></div>
+                </section>
+            </div>
+            <div class="column-right">
+                <section class="card" id="summary-section">
+                    <h2>Monthly Summary</h2>
+                    <div id="monthly-summary-data"></div>
+                </section>
+                <section class="card" id="analytics-section">
+                    <h2>Spending Analytics</h2>
+                    <div id="spending-analytics-data"></div>
+                </section>
+                <section class="card" id="report-section">
+                    <h2>Visual Report</h2>
+                    <img id="report-chart" src="" alt="Monthly Expense Chart">
+                </section>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
