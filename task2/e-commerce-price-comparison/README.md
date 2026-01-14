@@ -17,9 +17,9 @@ A web application that compares prices across multiple e-commerce platforms to h
 
 ## Setup
 1. Add API keys to `script.js`:
-   - Etsy API Key
+   - FAKESTORE Key
    - RapidAPI Key (Amazon)
-   - SerpApi Key (Walmart)
+   - DUMMYSHOP API  
 2. Open `index.html` in browser
 3. Search for products to compare prices
 
