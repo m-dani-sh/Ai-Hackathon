@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post a Ride</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Post a Ride</h2>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/search_rides">Search Rides</a>
+        <a href="/ride_history">Ride History</a>
+    </nav>
+
+    <form method="POST">
+        <input type="text" name="driver_name" placeholder="Your Name" required>
+        <input type="text" name="route" placeholder="Route (e.g., Campus to City)" required>
+        <input type="datetime-local" name="time" required>
+        <input type="number" name="seats" placeholder="Available Seats" min="1" required>
+        <input type="number" step="0.0001" name="start_lat" placeholder="Start Latitude" required>
+        <input type="number" step="0.0001" name="start_lng" placeholder="Start Longitude" required>
+        <input type="number" step="0.0001" name="end_lat" placeholder="End Latitude" required>
+        <input type="number" step="0.0001" name="end_lng" placeholder="End Longitude" required>
+        <button type="submit">Post Ride</button>
+    </form>
+</body>
+</html>
