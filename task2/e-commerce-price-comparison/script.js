@@ -1,6 +1,7 @@
-const ETSY_API_KEY = "5v68xplogevnqg83zcxd6565";      // 👈 Replace with your Etsy API Key
-const RAPIDAPI_KEY = "";      // 👈 Replace with your RapidAPI Key
-const SERPAPI_API_KEY = "e80c0a7188518c46f252f16a79b19f203d7b3431b8c6aa118ef23ca0dba87366"; // 👈 Replace with your SerpApi API Key
+// Working APIs without CORS issues
+const DUMMYSHOP_API_URL = "https://dummyjson.com/products/search";
+const FAKESTORE_API_URL = "https://fakestoreapi.com/products";
+const RAPIDAPI_KEY = "27dc1280b5msh75faa2a12a0a27dp16098ajsnb272e4b23995";
 
 const searchInput = document.getElementById("searchInput")
 const searchBtn = document.getElementById("searchBtn")
@@ -37,48 +38,70 @@ function fetchDeals(query) {
 }
 
 async function fetchDeals(query) {
-  if (!ETSY_API_KEY || !RAPIDAPI_KEY || !SERPAPI_API_KEY) {
-    showError("One or more API keys are not set. Please add them in script.js");
-    loadingSpinner.classList.add("hidden");
-    return;
-  }
+  // Show loading state
+  loadingSpinner.classList.remove("hidden")
+  errorMessage.classList.add("hidden")
+  resultsContainer.classList.add("hidden")
+  emptyState.classList.add("hidden")
 
-  const fetchEtsy = async (query) => {
-    const url = `https://openapi.etsy.com/v3/application/listings/active?keywords=${encodeURIComponent(query)}&limit=10`;
+  const fetchFakeStore = async (query) => {
     try {
-      const response = await fetch(url, {
-        headers: { 'x-api-key': ETSY_API_KEY }
-      });
+      const response = await fetch(FAKESTORE_API_URL);
       const data = await response.json();
-      return data.results.map(item => ({
-        platform: 'Etsy',
+      // Filter products based on search query
+      const filteredProducts = data.filter(item => 
+        item.title.toLowerCase().includes(query.toLowerCase()) ||
+        item.category.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 10);
+      return filteredProducts.map(item => ({
+        platform: 'FakeStore',
         title: item.title,
-        price: item.price.amount / item.price.divisor,
-        image: item.listing_images?.[0]?.url_fullxfull || '',
-        link: item.url
+        price: item.price,
+        image: item.image,
+        link: `https://fakestoreapi.com/products/${item.id}`
       }));
     } catch (error) {
-      console.error('Etsy API Error:', error);
+      console.error('FakeStore API Error:', error);
+      return [];
+    }
+  };
+
+  const fetchDummyShop = async (query) => {
+    const url = `${DUMMYSHOP_API_URL}?q=${encodeURIComponent(query)}&limit=10`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.products.map(item => ({
+        platform: 'DummyShop',
+        title: item.title,
+        price: item.price,
+        image: item.thumbnail,
+        link: `https://dummyjson.com/products/${item.id}`
+      }));
+    } catch (error) {
+      console.error('DummyShop API Error:', error);
       return [];
     }
   };
 
   const fetchAmazon = async (query) => {
-    const url = `https://amazon-product-search-api1.p.rapidapi.com/search?keyword=${encodeURIComponent(query)}`;
+    const url = `https://real-time-amazon-data.p.rapidapi.com/search?query=${encodeURIComponent(query)}&country=US&page=1`;
     try {
       const response = await fetch(url, {
         headers: {
           'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'amazon-product-search-api1.p.rapidapi.com'
+          'x-rapidapi-host': 'real-time-amazon-data.p.rapidapi.com'
         }
       });
       const data = await response.json();
-      return data.results.map(item => ({
+      // Handle different response structures
+      const products = data.data?.products || data.products || [];
+      return products.map(item => ({
         platform: 'Amazon',
-        title: item.title,
-        price: item.price.current_price,
-        image: item.thumbnail,
-        link: item.url
+        title: item.product_title || item.title || 'Unknown Product',
+        price: parseFloat(item.product_price || item.price || 0),
+        image: item.product_photo || item.thumbnail || item.image || '',
+        link: item.product_url || item.url || '#'
       }));
     } catch (error) {
       console.error('Amazon (RapidAPI) Error:', error);
@@ -86,29 +109,11 @@ async function fetchDeals(query) {
     }
   };
 
-  const fetchWalmart = async (query) => {
-    const url = `https://serpapi.com/search.json?engine=walmart&query=${encodeURIComponent(query)}&api_key=${SERPAPI_API_KEY}`;
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      return (data.shopping_results || []).map(item => ({
-        platform: 'Walmart',
-        title: item.title,
-        price: item.primary_offer.offer_price,
-        image: item.thumbnail,
-        link: item.product_page_url
-      }));
-    } catch (error) {
-      console.error('Walmart (SerpApi) Error:', error);
-      return [];
-    }
-  };
-
   try {
     const results = await Promise.all([
-      fetchEtsy(query),
-      fetchAmazon(query),
-      fetchWalmart(query)
+      fetchFakeStore(query),
+      fetchDummyShop(query),
+      fetchAmazon(query)
     ]);
 
     const allDeals = results.flat().filter(deal => deal);
