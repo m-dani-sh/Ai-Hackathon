@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Connect - Instant Friend Connections</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-qrcode"></i> QR Connect</h1>
+            <p class="subtitle">Connect instantly with friends by scanning QR codes. No usernames, no phone numbers — just scan and connect!</p>
+            <div class="instructions">
+                <p><i class="fas fa-mouse-pointer"></i> Hover over any card to view QR code</p>
+                <p><i class="fas fa-hand-pointer"></i> Click to enlarge QR code</p>
+                <p><i class="fas fa-mobile-alt"></i> Scan with your mobile to view profile</p>
+            </div>
+        </header>
+
+        <button class="qr-scanner-btn" id="scanQRBtn"><i class="fas fa-camera"></i> Scan Friend QR</button>
+
+        <div class="scanned-result" id="scannedResult"></div>
+        <div class="people-grid" id="peopleGrid"></div>
+
+        <div class="qr-modal" id="qrModal">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-content">
+                <div id="modalContent"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>QR Connect &copy; 2025 | Professional Friend Connections</p>
+            <p>Scan QR codes to instantly view profiles</p>
+        </div>
+    </div>
+
+    <script>
+        const friends = [
+            { id: 1, name: "Muhammad Mohib Akram", role: "Frontend Developer", email: "mohib@gmail.com", phone: "+92 334 567891", location: "Karachi, Pakistan", interests: "Web Dev, AI, Photography", img: "image/mohib.png" },
+            { id: 2, name: "Muhammad Danish", role: "AI Developer", email: "Danish@gmail.com", phone: "+92 321 9876543", location: "Karachi, Pakistan", interests: "Machine Learning", img: "image/danish.jpeg" },
+            { id: 3, name: "Hamza Anis", role: "Data Scientist", email: "hamza@gmail.com", phone: "+92 333 4567890", location: "Islamabad, Pakistan", interests: "ML, Python, Big Data", img: "image/hamza.jpg" },
+            { id: 4, name: "Shayan Haider", role: "Mobile App Developer", email: "Shayan@gmail.com", phone: "+92 334 2102118", location: "Faisalabad, Pakistan", interests: "Flutter, React Native, IoT", img: "image/shayan.png" }
+        ];
+
+        function generateQRCode(text, elementId, size=128){
+            const qr = qrcode(0,'M');
+            qr.addData(text); qr.make();
+            const el = document.getElementById(elementId);
+            if(el){
+                el.innerHTML = qr.createImgTag(5);
+                const img = el.querySelector('img');
+                img.style.width = img.style.height = `${size}px`;
+                const icon = document.createElement('div');
+                icon.className = 'qr-center-icon';
+                icon.innerHTML = '<i class="fas fa-user"></i>';
+                el.appendChild(icon);
+            }
+        }
+
+        function createFriendCards(){
+            const grid = document.getElementById('peopleGrid');
+            friends.forEach(friend=>{
+                const card = document.createElement('div');
+                card.className='person-card';
+                card.dataset.id=friend.id;
+                card.innerHTML=`
+                    <div class="person-info">
+                        ${friend.img?`<img src="${friend.img}" class="person-img">`:`<div class="person-icon"><i class="fas fa-user"></i></div>`}
+                        <div><h2 class="person-name">${friend.name}</h2><p class="person-role">${friend.role}</p></div>
+                    </div>
+                    <div class="qr-container" id="qrContainer${friend.id}">
+                        <div class="qr-code" id="qrCode${friend.id}"></div>
+                        <p class="scan-hint">Scan to connect with ${friend.name.split(' ')[0]}</p>
+                    </div>
+                `;
+                card.addEventListener('click', ()=>showFriendModal(friend));
+                grid.appendChild(card);
+                generateQRCode(JSON.stringify({...friend, platform:"QR Connect"}),`qrCode${friend.id}`,120);
+            });
+        }
+
+        function showFriendModal(friend){
+            const modal=document.getElementById('qrModal');
+            const content=document.getElementById('modalContent');
+            content.innerHTML=`
+                <div class="person-info" style="justify-content:center;margin-bottom:15px;">
+                    ${friend.img?`<img src="${friend.img}" class="person-img" style="width:100px;height:100px;">`:`<div class="person-icon" style="width:100px;height:100px;"><i class="fas fa-user"></i></div>`}
+                    <div style="margin-left:20px;"><h2 class="modal-person-name">${friend.name}</h2><p class="person-role">${friend.role}</p></div>
+                </div>
+                <div class="modal-person-details">
+                    <p>Email: ${friend.email}</p>
+                    <p>Phone: ${friend.phone}</p>
+                    <p>Location: ${friend.location}</p>
+                    <p>Interests: ${friend.interests}</p>
+                </div>
+                <div class="modal-qr-code" id="modalQRCode${friend.id}"></div>
+                <div class="scan-instruction">Scan to view ${friend.name.split(' ')[0]}'s profile</div>
+            `;
+            const qr=qrcode(0,'M');
+            qr.addData(JSON.stringify({...friend, platform:"QR Connect"})); qr.make();
+            const el=document.getElementById(`modalQRCode${friend.id}`);
+            if(el){el.innerHTML=qr.createImgTag(8); const img=el.querySelector('img'); img.style.width=img.style.height='200px'; const icon=document.createElement('div'); icon.className='qr-center-icon'; icon.style.width=icon.style.height='50px'; icon.innerHTML='<i class="fas fa-user"></i>'; el.appendChild(icon);}
+            modal.classList.add('active'); document.body.style.overflow='hidden';
+        }
+
+        document.getElementById('modalClose').addEventListener('click',()=>{
+            document.getElementById('qrModal').classList.remove('active');
+            document.body.style.overflow='auto';
+        });
+        document.getElementById('qrModal').addEventListener('click',(e)=>{if(e.target===document.getElementById('qrModal')){document.getElementById('qrModal').classList.remove('active'); document.body.style.overflow='auto';}});
+
+        document.getElementById('scanQRBtn').addEventListener('click',()=>{
+            const random=friends[Math.floor(Math.random()*friends.length)];
+            displayScannedResult(random);
+        });
+
+        function displayScannedResult(friend){
+            const el=document.getElementById('scannedResult');
+            el.innerHTML=`
+                <div class="scanned-profile">
+                    ${friend.img?`<img src="${friend.img}" class="scanned-img">`:`<div class="person-icon" style="width:100px;height:100px;"><i class="fas fa-user"></i></div>`}
+                    <div class="scanned-info">
+                        <h3>${friend.name}</h3>
+                        <p>${friend.role}</p>
+                        <button class="connection-btn" onclick="connectWithFriend('${friend.name}')"><i class="fas fa-user-plus"></i> Connect</button>
+                    </div>
+                </div>
+                <div class="scanned-details">
+                    <p>Email: ${friend.email}</p>
+                    <p>Phone: ${friend.phone}</p>
+                    <p>Location: ${friend.location}</p>
+                    <p>Interests: ${friend.interests}</p>
+                </div>
+            `;
+            el.classList.add('active'); el.scrollIntoView({behavior:'smooth'});
+        }
+
+        function connectWithFriend(name){alert(`Connection request sent to ${name}!`);}
+
+        document.addEventListener('DOMContentLoaded',()=>{createFriendCards(); document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('qrModal').classList.remove('active'); document.body.style.overflow='auto';}});});
+    </script>
+</body>
+</html>
