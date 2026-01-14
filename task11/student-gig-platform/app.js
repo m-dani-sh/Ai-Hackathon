@@ -2,12 +2,14 @@
 // ================================
 
 class GigHubApp {
+
   constructor() {
     this.currentUser = null
     this.gigs = []
     this.bids = []
     this.portfolio = []
     this.init()
+
   }
 
   init() {
@@ -21,7 +23,10 @@ class GigHubApp {
       this.generateSampleGigs()
     }
   }
-
+  toggleMobileMenu() {
+    const navLinks = document.querySelector('.nav-links');
+    navLinks.classList.toggle('active');
+  }
   setupFirebaseAuth() {
     // Listen for auth state changes
     auth.onAuthStateChanged((user) => {
@@ -75,7 +80,7 @@ class GigHubApp {
         bids: this.bids,
       }),
     )
-    
+
     // Save user-specific data
     if (this.currentUser) {
       localStorage.setItem(
@@ -366,17 +371,18 @@ class GigHubApp {
 
   renderDashboard() {
     return `
-            <nav>
-                <div class="container flex-between">
-                    <a class="logo">⚡ GigHub</a>
-                    <ul class="nav-links">
-                        <li><a onclick="app.switchSection('feed')" class="nav-link ${this.getActiveSection() === "feed" ? "active" : ""}">Browse Gigs</a></li>
-                        <li><a onclick="app.switchSection('posted')" class="nav-link ${this.getActiveSection() === "posted" ? "active" : ""}">My Gigs</a></li>
-                        <li><a onclick="app.switchSection('profile')" class="nav-link ${this.getActiveSection() === "profile" ? "active" : ""}">Profile</a></li>
-                        <li><a onclick="app.logout()" class="nav-link">Logout</a></li>
-                    </ul>
-                </div>
-            </nav>
+     <nav>
+            <div class="container flex-between">
+        <a class="logo">⚡ GigHub</a>
+        <button class="mobile-menu-toggle" onclick="app.toggleMobileMenu()">☰</button>
+        <ul class="nav-links">
+          <li><a onclick="app.switchSection('feed')" class="nav-link ${this.getActiveSection() === "feed" ? "active" : ""}">Browse Gigs</a></li>
+          <li><a onclick="app.switchSection('posted')" class="nav-link ${this.getActiveSection() === "posted" ? "active" : ""}">My Gigs</a></li>
+          <li><a onclick="app.switchSection('profile')" class="nav-link ${this.getActiveSection() === "profile" ? "active" : ""}">Profile</a></li>
+          <li><a onclick="app.logout()" class="nav-link">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
 
             <div class="dashboard">
                 <div class="container">
@@ -502,8 +508,8 @@ class GigHubApp {
     return `
             <div class="grid grid-cols-2">
                 ${myGigs
-                  .map(
-                    (gig) => `
+        .map(
+          (gig) => `
                     <div class="card">
                         <h3>${gig.title}</h3>
                         <p>${gig.description}</p>
@@ -521,14 +527,13 @@ class GigHubApp {
                             <button class="btn btn-danger btn-sm" onclick="app.deleteGigHandler(${gig.id})">Delete</button>
                         </div>
                         ` : ''}
-                        ${
-                          gig.bids.length > 0
-                            ? `
+                        ${gig.bids.length > 0
+              ? `
                             <div class="bids-section">
                                 <h4 style="margin-bottom: 12px;">Bids (${gig.bids.length})</h4>
                                 ${gig.bids
-                                  .map(
-                                    (bid) => `
+                .map(
+                  (bid) => `
                                     <div class="bid-card">
                                         <div class="bid-info">
                                             <div class="bid-amount">$${bid.amount}</div>
@@ -537,16 +542,16 @@ class GigHubApp {
                                         <button class="btn btn-primary btn-sm" onclick="app.acceptBid(${gig.id}, ${bid.id})">${gig.userId === this.currentUser.id ? 'Accept' : 'View'}</button>
                                     </div>
                                 `,
-                                  )
-                                  .join("")}
+                )
+                .join("")}
                             </div>
                         `
-                            : '<p style="color: var(--text-tertiary); margin-top: 16px;">No bids yet</p>'
-                        }
+              : '<p style="color: var(--text-tertiary); margin-top: 16px;">No bids yet</p>'
+            }
                     </div>
                 `,
-                  )
-                  .join("")}
+        )
+        .join("")}
             </div>
         `
   }
@@ -578,22 +583,21 @@ class GigHubApp {
                 </div>
 
                 <h2 style="margin: 32px 0 16px 0;">Portfolio</h2>
-                ${
-                  (() => {
-                    const userPortfolio = this.portfolio.filter(item => item.userId === this.currentUser.id)
-                    return userPortfolio.length === 0
-                    ? `
+                ${(() => {
+        const userPortfolio = this.portfolio.filter(item => item.userId === this.currentUser.id)
+        return userPortfolio.length === 0
+          ? `
                     <div class="empty-state">
                         <div class="empty-state-icon">🎯</div>
                         <h3>Portfolio is empty</h3>
                         <p>Complete gigs to build your portfolio!</p>
                     </div>
                 `
-                    : `
+          : `
                     <div class="grid grid-cols-2">
                         ${userPortfolio
-                          .map(
-                            (item) => `
+            .map(
+              (item) => `
                             <div class="portfolio-item">
                                 <h3>${item.title}</h3>
                                 <p>${item.description}</p>
@@ -606,12 +610,12 @@ class GigHubApp {
                                 </div>
                             </div>
                         `,
-                          )
-                          .join("")}
+            )
+            .join("")}
                     </div>
                 `
-                  })()
-                }
+      })()
+      }
             </div>
         `
   }
@@ -652,14 +656,13 @@ class GigHubApp {
                 </div>
                 ` : ''}
 
-                ${
-                  gig.bids.length > 0
-                    ? `
+                ${gig.bids.length > 0
+        ? `
                     <div class="bids-section">
                         <h3>Bids (${gig.bids.length})</h3>
                         ${gig.bids
-                          .map(
-                            (bid) => `
+          .map(
+            (bid) => `
                             <div class="bid-card">
                                 <div class="bid-info">
                                     <div class="bid-amount">$${bid.amount}</div>
@@ -669,12 +672,12 @@ class GigHubApp {
                                 <button class="btn btn-primary btn-sm" onclick="app.acceptBid(${gig.id}, ${bid.id})">${gig.userId === this.currentUser.id ? 'Accept' : 'View'}</button>
                             </div>
                         `,
-                          )
-                          .join("")}
+          )
+          .join("")}
                     </div>
                 `
-                    : ""
-                }
+        : ""
+      }
             </div>
         `
 
